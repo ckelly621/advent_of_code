@@ -46,7 +46,6 @@ int main(int argc, char** argv)
 
 	f.close();
 
-	int down, right;
 	int part_two_result = 1;
 
 	if ( argc - 2 > 0 && (argc - 2) % 2 == 0)

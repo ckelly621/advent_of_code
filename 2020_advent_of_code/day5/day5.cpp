@@ -9,11 +9,10 @@
 int find_id(const std::string& encoding)
 {
 	int lower_mask = 7; // 0000000111 in binary
-	int upper_mask = 1023; // 1111111000 in binary
 	int bit_shift = 3; // need to shift to the right
 	int value = std::stoi(encoding, nullptr, 2);
 
-	int row = (value & upper_mask) >> 3; 
+	int row = value >> 3; 
 	int col = (value & lower_mask);
 
 	return row * 8 + col; 

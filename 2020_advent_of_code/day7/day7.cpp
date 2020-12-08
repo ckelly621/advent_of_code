@@ -33,30 +33,62 @@ struct bag parse_line(const std::regex& bagr, const std::regex& contents, std::s
 	return {name, m_contents};
 }
 
-bool is_content(const std::unordered_map<std::string, std::unordered_map<std::string, int>> bags, const std::string& key, const std::string& content)
+void find_bags_by_content(const std::unordered_map<std::string, std::unordered_map<std::string, int>>& bags, 
+		std::unordered_set<std::string> &contains,
+		std::unordered_set<std::string> &seen,
+		const std::string& key, 
+		const std::string& content)
 {
-	if (key == content) return false;
+	auto check_seen = seen.find(key);
+        if (check_seen == seen.end()) 
+	{
+		seen.insert(key);
+	}
+	else
+	{
+		return;
+	}
+	if (key == content) return;
 	auto children = bags.at(key);
 	auto find_iter = children.find(content);
-	if (find_iter != children.end()) return true;
+	if (find_iter != children.end()) {
+		contains.insert(key);
+		return;
+	}
 
-	bool res = false;
 	for (auto& f : children)
 	{
-		res |= is_content(bags, f.first, content); 
+		find_bags_by_content(bags, contains, seen, f.first, content); 
+		auto check_contains = contains.find(f.first);
+		if (check_contains != contains.end()) contains.insert(key);
 	}
-	return false;
+}
+
+int count_bags_inside(const std::unordered_map<std::string, std::unordered_map<std::string, int>>& bags,
+		const std::string& key)
+{
+	auto children = bags.at(key);
+	int contents = 0;
+	for (auto& child : children)
+	{
+		contents += child.second * (count_bags_inside(bags, child.first) + 1);
+	}
+
+	return contents;
 }
 
 int main(int argc, char** argv)
 {
-
 	std::ifstream f(argv[1]);
 	std::string line;
 	std::vector<std::string> lines;
 	std::regex bagr("([a-z ]+) bags contain.*");
 	std::regex contents("(([\\d]) ([a-z ]+)) bag[s]{0,1}[,\\.]");
 	std::unordered_map<std::string, std::unordered_map<std::string, int>> bags;
+	std::vector<std::string> bags_v;
+
+	std::unordered_set<std::string> contains_bag;
+	std::unordered_set<std::string> seen;
 
 	int p1_total = 0;
 	int p2_total = 0;
@@ -73,14 +105,17 @@ int main(int argc, char** argv)
 	{
 		struct bag b = parse_line(bagr, contents, lines[i]);
 		bags[b.name] = b.contents;
+		bags_v.push_back(b.name);
 	}
 
-	for (auto& iter : bags)
+	for (auto& iter : bags_v)
 	{
-		if (is_content(bags, iter.first, "shiny gold")) p1_total++;
+		find_bags_by_content(bags, contains_bag, seen, iter, "shiny gold");
 	}
 
-	std::cout << "Part 1:  " << p1_total << std::endl;// << "Part 2:  " << p2_total << std::endl;
+	p1_total = contains_bag.size();
+	p2_total = count_bags_inside(bags, "shiny gold");
+	std::cout << "Part 1:  " << p1_total << std::endl << "Part 2:  " << p2_total << std::endl;
 
 	return 0;
 	

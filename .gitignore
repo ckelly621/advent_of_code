@@ -12,3 +12,5 @@ README.txt
 *.txt
 *.exe
 **/\.vs/
+**/.idea
+**/target

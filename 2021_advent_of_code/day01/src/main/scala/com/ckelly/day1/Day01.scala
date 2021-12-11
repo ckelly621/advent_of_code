@@ -4,13 +4,16 @@ import scala.io.Source
 
 object Day01 extends App {
   def solvePartOne(filename: String): Int = {
-    Source.fromResource(filename).getLines().map(_.toInt).sliding(2).count(increased)
+    countIncreased(Source.fromResource(filename).getLines().map(_.toInt))
   }
   def solvePartTwo(filename: String): Int = {
-    Source.fromResource(filename).getLines().map(_.toInt).sliding(3).map(_.sum).sliding(2).count(increased)
+    countIncreased(Source.fromResource(filename).getLines().map(_.toInt).sliding(3).map(_.sum))
   }
-  def increased(pair: Seq[Int]): Boolean = {
-    pair.length == 2 && pair(1) > pair.head
+
+  def countIncreased(iter: Iterator[Int]): Int = {
+    iter.sliding(2).count{ _ match {
+      case Seq(a, b) => b > a
+    }}
   }
 
   println(s"First part:  ${solvePartOne("input.txt")}")

@@ -10,5 +10,6 @@
         <version>1.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>day01</artifactId>
+    <artifactId>day03</artifactId>
+
 </project>
